@@ -80,7 +80,7 @@ qSlicerPathExplorerMarkupsTableWidget
   d->setupUi(this);
 
   connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)),
-	  this, SLOT(onMRMLSceneChanged(vtkMRMLScene*)));
+          this, SLOT(onMRMLSceneChanged(vtkMRMLScene*)));
 
   connect(d->AddButton, SIGNAL(toggled(bool)),
           this, SLOT(onAddButtonToggled(bool)));
@@ -185,9 +185,9 @@ void qSlicerPathExplorerMarkupsTableWidget
     return;
     }
 
-  this->qvtkReconnect(this->mrmlScene(), 
-		      newScene, vtkMRMLScene::StartCloseEvent,
-		      this, SLOT(onMRMLSceneClosed()));
+  this->qvtkReconnect(this->mrmlScene(),
+                      newScene, vtkMRMLScene::StartCloseEvent,
+                      this, SLOT(onMRMLSceneClosed()));
 }
 
 //-----------------------------------------------------------------------------
@@ -212,7 +212,7 @@ void qSlicerPathExplorerMarkupsTableWidget
 ::onAddButtonToggled(bool pushed)
 {
   Q_D(qSlicerPathExplorerMarkupsTableWidget);
-  
+
   if (!this->mrmlScene())
     {
     return;
@@ -224,7 +224,7 @@ void qSlicerPathExplorerMarkupsTableWidget
     return;
     }
 
-  vtkMRMLSelectionNode* selectionNode = 
+  vtkMRMLSelectionNode* selectionNode =
     vtkMRMLSelectionNode::SafeDownCast(this->mrmlScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
   vtkMRMLInteractionNode* interactionNode =
     vtkMRMLInteractionNode::SafeDownCast(this->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
@@ -268,9 +268,9 @@ void qSlicerPathExplorerMarkupsTableWidget
 
   // Remove Markup
   int markupIndex = d->TableWidget->item(row, Self::Name)->data(Self::MarkupIndex).toInt();
-  
+
   if (d->FiducialNode->MarkupExists(markupIndex))
-    {    
+    {
     // Row in the widget is automatically removed when a markup is removed
     // See onMarkupRemoved
     d->FiducialNode->RemoveMarkup(markupIndex);
@@ -282,60 +282,60 @@ void qSlicerPathExplorerMarkupsTableWidget
 void qSlicerPathExplorerMarkupsTableWidget
 ::onClearButtonClicked()
 {
-   Q_D(qSlicerPathExplorerMarkupsTableWidget);
+  Q_D(qSlicerPathExplorerMarkupsTableWidget);
 
-   if (!d->TableWidget || !d->FiducialNode)
-     {
-     return;
-     }
-   
-   int nOfMarkups = d->FiducialNode->GetNumberOfMarkups();
-   for (int i = 0; i < nOfMarkups; ++i)
-     {
-     emit markupRemoved(d->FiducialNode, i);
-     }
-   d->FiducialNode->RemoveAllMarkups();
+  if (!d->TableWidget || !d->FiducialNode)
+    {
+    return;
+    }
+
+  int nOfMarkups = d->FiducialNode->GetNumberOfMarkups();
+  for (int i = 0; i < nOfMarkups; ++i)
+    {
+    emit markupRemoved(d->FiducialNode, i);
+    }
+  d->FiducialNode->RemoveAllMarkups();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerPathExplorerMarkupsTableWidget
 ::onSelectionChanged()
 {
-   Q_D(qSlicerPathExplorerMarkupsTableWidget);
+  Q_D(qSlicerPathExplorerMarkupsTableWidget);
 
-   if (!d->TableWidget || !d->FiducialNode)
-     {
-     return;
-     }
+  if (!d->TableWidget || !d->FiducialNode)
+    {
+    return;
+    }
 
-   // Performance: Block signals to avoid updating all information of the selected markups 
-   // when selecting it. SetNthFiducialSelected fired the NthMarkupModifiedEvent, but neither
-   // the name or the position is changed, so table doesn't require to be updated
-   this->qvtkBlock(d->FiducialNode, vtkMRMLMarkupsNode::NthMarkupModifiedEvent, this); 
+  // Performance: Block signals to avoid updating all information of the selected markups
+  // when selecting it. SetNthFiducialSelected fired the NthMarkupModifiedEvent, but neither
+  // the name or the position is changed, so table doesn't require to be updated
+  this->qvtkBlock(d->FiducialNode, vtkMRMLMarkupsNode::NthMarkupModifiedEvent, this);
 
-   if (d->CurrentMarkupSelected >= 0 && d->CurrentMarkupSelected < d->FiducialNode->GetNumberOfMarkups())
-     {
-     d->FiducialNode->SetNthFiducialSelected(d->CurrentMarkupSelected, false);
-     }
+  if (d->CurrentMarkupSelected >= 0 && d->CurrentMarkupSelected < d->FiducialNode->GetNumberOfMarkups())
+    {
+    d->FiducialNode->SetNthFiducialSelected(d->CurrentMarkupSelected, false);
+    }
 
-   int row = d->TableWidget->currentRow();
-   int markupIndex = -1;
-   if (row >= 0)
-     {
-     markupIndex = d->TableWidget->item(row, Self::Name)->data(Self::MarkupIndex).toInt();
-     
-     if (d->FiducialNode->MarkupExists(markupIndex))
-       {
-       d->FiducialNode->SetNthFiducialSelected(markupIndex, true);
-       d->CurrentMarkupSelected = markupIndex;
-       }
-     }
+  int row = d->TableWidget->currentRow();
+  int markupIndex = -1;
+  if (row >= 0)
+    {
+    markupIndex = d->TableWidget->item(row, Self::Name)->data(Self::MarkupIndex).toInt();
 
-   emit markupSelected(d->FiducialNode, markupIndex);
+    if (d->FiducialNode->MarkupExists(markupIndex))
+      {
+      d->FiducialNode->SetNthFiducialSelected(markupIndex, true);
+      d->CurrentMarkupSelected = markupIndex;
+      }
+    }
 
-   this->qvtkUnblock(d->FiducialNode, vtkMRMLMarkupsNode::NthMarkupModifiedEvent, this); 
+  emit markupSelected(d->FiducialNode, markupIndex);
 
-   d->FiducialNode->Modified();
+  this->qvtkUnblock(d->FiducialNode, vtkMRMLMarkupsNode::NthMarkupModifiedEvent, this);
+
+  d->FiducialNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -366,7 +366,7 @@ void qSlicerPathExplorerMarkupsTableWidget
     {
     return;
     }
-  
+
   if (column == Self::Name)
     {
     // Name has been edited
@@ -376,8 +376,8 @@ void qSlicerPathExplorerMarkupsTableWidget
     {
     // Position has been edited
     double markupPosition[3] = {d->TableWidget->item(row, Self::R)->text().toDouble(),
-				d->TableWidget->item(row, Self::A)->text().toDouble(),
-				d->TableWidget->item(row, Self::S)->text().toDouble()};
+                                d->TableWidget->item(row, Self::A)->text().toDouble(),
+                                d->TableWidget->item(row, Self::S)->text().toDouble()};
     d->FiducialNode->SetNthFiducialPositionFromArray(markupIndex, markupPosition);
     }
 }
@@ -411,19 +411,19 @@ void qSlicerPathExplorerMarkupsTableWidget
       // Check if node already in table
       QAbstractItemModel* model = d->TableWidget->model();
       if (model)
-	{
-	QModelIndexList found = model->match(model->index(0,Self::Name),
-					     Self::MarkupIndex, markupIndex, 
-					     1, Qt::MatchExactly);
-	if (found.isEmpty())
-	  {
-	  this->addMarkupInTable(d->FiducialNode, markupIndex);
-	  }
-	else
-	  {
-	  this->updateMarkupInTable(d->FiducialNode, markupIndex, found[0]);
-	  }
-	}
+        {
+        QModelIndexList found = model->match(model->index(0,Self::Name),
+                                             Self::MarkupIndex, markupIndex,
+                                             1, Qt::MatchExactly);
+        if (found.isEmpty())
+          {
+          this->addMarkupInTable(d->FiducialNode, markupIndex);
+          }
+        else
+          {
+          this->updateMarkupInTable(d->FiducialNode, markupIndex, found[0]);
+          }
+        }
       }
     }
 }
@@ -451,7 +451,7 @@ void qSlicerPathExplorerMarkupsTableWidget
 {
   Q_D(qSlicerPathExplorerMarkupsTableWidget);
 
-  if (!d->TableWidget || !fNode || 
+  if (!d->TableWidget || !fNode ||
       d->FiducialNode != fNode)
     {
     return;
@@ -475,7 +475,7 @@ void qSlicerPathExplorerMarkupsTableWidget
 
   int rowCount = d->TableWidget->rowCount();
   d->TableWidget->insertRow(rowCount);
-  
+
   QTableWidgetItem* nameItem = new QTableWidgetItem(QString(markupName.c_str()));
   QTableWidgetItem* rItem    = new QTableWidgetItem(QString::number(markupPos[0],'f',2));
   QTableWidgetItem* aItem    = new QTableWidgetItem(QString::number(markupPos[1],'f',2));
@@ -483,7 +483,7 @@ void qSlicerPathExplorerMarkupsTableWidget
   QTableWidgetItem* timeItem = new QTableWidgetItem(QTime::currentTime().toString());
   nameItem->setData(Self::MarkupIndex, markupIndex);
   timeItem->setFlags(timeItem->flags() & ~Qt::ItemIsEditable);
-  
+
   QColor color = QColor(d->RGBA[0]*255, d->RGBA[1]*255, d->RGBA[2]*255, 128);
   QBrush brush = QBrush(color);
   nameItem->setBackground(brush);
@@ -508,13 +508,13 @@ void qSlicerPathExplorerMarkupsTableWidget
 ::updateMarkupInTable(vtkMRMLMarkupsFiducialNode* fNode, int markupIndex, QModelIndex index)
 {
   Q_D(qSlicerPathExplorerMarkupsTableWidget);
-  
+
   if (!d->TableWidget || !fNode || !d->FiducialNode || !index.isValid() ||
       fNode != d->FiducialNode)
     {
     return;
     }
-  
+
   if (!d->FiducialNode->MarkupExists(markupIndex))
     {
     return;
@@ -553,7 +553,7 @@ const char* qSlicerPathExplorerMarkupsTableWidget
 
   int row = d->TableWidget->currentRow();
   int markupIndex = d->TableWidget->item(row, Self::Name)->data(Self::MarkupIndex).toInt();
-  
+
   if (!d->FiducialNode->MarkupExists(markupIndex))
     {
     return NULL;
@@ -572,7 +572,7 @@ void qSlicerPathExplorerMarkupsTableWidget
 ::setSelectedMarkup(vtkMRMLMarkupsFiducialNode* fNode, int markupIndex)
 {
   Q_D(qSlicerPathExplorerMarkupsTableWidget);
-  
+
   if (!d->TableWidget || !d->FiducialNode || !fNode ||
       fNode != d->FiducialNode)
     {
@@ -588,8 +588,8 @@ void qSlicerPathExplorerMarkupsTableWidget
   if (model)
     {
     QModelIndexList found = model->match(model->index(0,Self::Name),
-					 Self::MarkupIndex, markupIndex, 
-					 1, Qt::MatchExactly);
+                                         Self::MarkupIndex, markupIndex,
+                                         1, Qt::MatchExactly);
     if (!found.isEmpty())
       {
       d->TableWidget->selectRow(found[0].row());
@@ -602,7 +602,7 @@ void qSlicerPathExplorerMarkupsTableWidget
 ::setColor(double r, double g, double b)
 {
   Q_D(qSlicerPathExplorerMarkupsTableWidget);
-  
+
   if (!d->TableWidget || !d->FiducialNode)
     {
     return;
@@ -615,8 +615,8 @@ void qSlicerPathExplorerMarkupsTableWidget
   // Table colors
   std::stringstream tableWidgetBackgroundColor;
   tableWidgetBackgroundColor << "QTableWidget { "
-			     << "selection-background-color: rgba("
-			     << r*255 << "," << g*255 << "," << b*255 << "," << 200 << "); }";
+                             << "selection-background-color: rgba("
+                             << r*255 << "," << g*255 << "," << b*255 << "," << 200 << "); }";
   d->TableWidget->setStyleSheet(QString::fromStdString(tableWidgetBackgroundColor.str()));
 
   // Markups color
@@ -626,6 +626,20 @@ void qSlicerPathExplorerMarkupsTableWidget
     {
     displayNode->SetColor(r,g,b);
     displayNode->SetSelectedColor(1.0, 0.5, 0.5);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPathExplorerMarkupsTableWidget
+::setName(const char* name)
+{
+  Q_D(qSlicerPathExplorerMarkupsTableWidget);
+
+  if (d->NameLabel)
+    {
+    QString gName(name);
+    gName.append(":");
+    d->NameLabel->setText(gName);
     }
 }
 

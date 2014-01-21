@@ -290,7 +290,7 @@ qSlicerPathExplorerReslicingWidget
           this, SLOT(onPerpendicularToggled(bool)));
 
   connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)),
-	  this, SLOT(onMRMLSceneChanged(vtkMRMLScene*)));
+          this, SLOT(onMRMLSceneChanged(vtkMRMLScene*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -338,8 +338,8 @@ void qSlicerPathExplorerReslicingWidget
     }
 
   this->qvtkReconnect(this->mrmlScene(),
-		      newScene, vtkMRMLScene::NodeAboutToBeRemovedEvent,
-		      this, SLOT(onMRMLNodeRemoved(vtkObject*, void*)));
+                      newScene, vtkMRMLScene::NodeAboutToBeRemovedEvent,
+                      this, SLOT(onMRMLNodeRemoved(vtkObject*, void*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -371,9 +371,9 @@ void qSlicerPathExplorerReslicingWidget
     }
 
   this->resliceWithRuler(d->ReslicingRulerNode,
-			 d->SliceNode,
-			 d->ReslicePerpendicular,
-			 d->ReslicePerpendicular ? d->ReslicePosition : d->ResliceAngle);
+                         d->SliceNode,
+                         d->ReslicePerpendicular,
+                         d->ReslicePerpendicular ? d->ReslicePosition : d->ResliceAngle);
 }
 
 //-----------------------------------------------------------------------------
@@ -406,7 +406,7 @@ void qSlicerPathExplorerReslicingWidget
                            d->ReslicePerpendicular ? d->ReslicePosition : d->ResliceAngle);
 
     this->qvtkConnect(d->ReslicingRulerNode, vtkCommand::ModifiedEvent,
-		      this, SLOT(onRulerModified()));
+                      this, SLOT(onRulerModified()));
     }
   else
     {
@@ -416,7 +416,7 @@ void qSlicerPathExplorerReslicingWidget
     d->ResliceInPlaneRadioButton->setEnabled(0);
 
     this->qvtkDisconnect(d->ReslicingRulerNode, vtkCommand::ModifiedEvent,
-			 this, SLOT(onRulerModified()));
+                         this, SLOT(onRulerModified()));
     }
 }
 
@@ -535,8 +535,8 @@ void qSlicerPathExplorerReslicingWidget
     t[1] /= tlen;
     t[2] /= tlen;
 
-    // angle in radian
-    vtkMath::Perpendiculars(t, n, NULL, resliceValue*vtkMath::Pi()/180);
+    // angle in radian (+pi to reslice in proper direction)XSXC
+    vtkMath::Perpendiculars(t, n, NULL, vtkMath::Pi()+(resliceValue*vtkMath::Pi()/180));
     }
 
   double nx = n[0];

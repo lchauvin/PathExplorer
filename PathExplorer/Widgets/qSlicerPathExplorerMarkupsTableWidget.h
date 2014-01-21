@@ -61,6 +61,7 @@ public:
   void setAddButtonState(bool state);
   void setAndObserveMarkupFiducialNode(vtkMRMLMarkupsFiducialNode* markupList);
   void setColor(double r, double g, double b);
+  void setName(const char* name);
   vtkMRMLMarkupsFiducialNode* getMarkupFiducialNode();
   const char* getSelectedMarkupID();
   

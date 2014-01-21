@@ -48,7 +48,7 @@ class Q_SLICER_MODULE_PATHEXPLORER_WIDGETS_EXPORT qSlicerPathExplorerTrajectoryT
  public:
   vtkMRMLMarkupsFiducialNode* EntryNode;
   vtkMRMLMarkupsFiducialNode* TargetNode;
-  vtkMRMLAnnotationHierarchyNode* TrajectoryNode; 
+  vtkMRMLAnnotationHierarchyNode* TrajectoryNode;
   int SelectedEntryMarkupIndex;
   int SelectedTargetMarkupIndex;
   int SelectedTrajectoryIndex;
@@ -85,7 +85,7 @@ qSlicerPathExplorerTrajectoryTableWidget
   d->setupUi(this);
 
   connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)),
-	  this, SLOT(onMRMLSceneChanged(vtkMRMLScene*)));
+          this, SLOT(onMRMLSceneChanged(vtkMRMLScene*)));
 
   connect(d->AddButton, SIGNAL(clicked()),
           this, SLOT(onAddButtonClicked()));
@@ -122,9 +122,9 @@ void qSlicerPathExplorerTrajectoryTableWidget
     return;
     }
 
-  this->qvtkReconnect(this->mrmlScene(), 
-		      newScene, vtkMRMLScene::EndCloseEvent,
-		      this, SLOT(onMRMLSceneClosed()));
+  this->qvtkReconnect(this->mrmlScene(),
+                      newScene, vtkMRMLScene::EndCloseEvent,
+                      this, SLOT(onMRMLSceneClosed()));
 }
 
 //-----------------------------------------------------------------------------
@@ -147,8 +147,8 @@ void qSlicerPathExplorerTrajectoryTableWidget
 ::onAddButtonClicked()
 {
   Q_D(qSlicerPathExplorerTrajectoryTableWidget);
-  
-  if (!this->mrmlScene() || !d->TableWidget || 
+
+  if (!this->mrmlScene() || !d->TableWidget ||
       !d->EntryNode || !d->TargetNode ||
       !d->EntryNode->MarkupExists(d->SelectedEntryMarkupIndex) ||
       !d->TargetNode->MarkupExists(d->SelectedTargetMarkupIndex) ||
@@ -162,21 +162,21 @@ void qSlicerPathExplorerTrajectoryTableWidget
   if (model)
     {
     QModelIndexList found = model->match(model->index(0,Self::EntryName),
-					 Self::EntryIndex, d->SelectedEntryMarkupIndex, 
-					 -1, Qt::MatchExactly);
+                                         Self::EntryIndex, d->SelectedEntryMarkupIndex,
+                                         -1, Qt::MatchExactly);
 
     for (int i = 0; i < found.count(); ++i)
       {
       int row = found[i].row();
       if (row >= 0)
-	{
-	int tmpTargetIndex = d->TableWidget->item(row, Self::TargetName)->data(Self::TargetIndex).toInt();
-	if (tmpTargetIndex == d->SelectedTargetMarkupIndex)
-	  {
-	  // Found trajectory with same entry and target points
-	  return;
-	  }
-	}
+        {
+        int tmpTargetIndex = d->TableWidget->item(row, Self::TargetName)->data(Self::TargetIndex).toInt();
+        if (tmpTargetIndex == d->SelectedTargetMarkupIndex)
+          {
+          // Found trajectory with same entry and target points
+          return;
+          }
+        }
       }
     }
 
@@ -186,33 +186,37 @@ void qSlicerPathExplorerTrajectoryTableWidget
   double targetMarkupPosition[3];
   d->TargetNode->GetNthFiducialPosition(d->SelectedTargetMarkupIndex, targetMarkupPosition);
 
-  vtkSmartPointer<vtkMRMLAnnotationRulerNode> ruler = 
+  vtkSmartPointer<vtkMRMLAnnotationRulerNode> ruler =
     vtkSmartPointer<vtkMRMLAnnotationRulerNode>::New();
   ruler->SetPosition1(entryMarkupPosition);
   ruler->SetPosition2(targetMarkupPosition);
   ruler->Initialize(this->mrmlScene());
 
   this->qvtkConnect(ruler.GetPointer(), vtkCommand::ModifiedEvent,
-		    this, SLOT(onRulerModified(vtkObject*)));
+                    this, SLOT(onRulerModified(vtkObject*)));
 
   // Update TableWidget
   int rowCount = d->TableWidget->rowCount();
   d->TableWidget->insertRow(rowCount);
-  
+
   QTableWidgetItem* rulerItem  = new QTableWidgetItem(QString(ruler->GetName()));
   QTableWidgetItem* entryItem  = new QTableWidgetItem(d->EntryNode->GetNthMarkupLabel(d->SelectedEntryMarkupIndex).c_str());
   QTableWidgetItem* targetItem = new QTableWidgetItem(d->TargetNode->GetNthMarkupLabel(d->SelectedTargetMarkupIndex).c_str());
+  QTableWidgetItem* visibilityItem = new QTableWidgetItem();
   rulerItem->setData(Self::RulerID, ruler->GetID());
   entryItem->setData(Self::EntryIndex, d->SelectedEntryMarkupIndex);
   targetItem->setData(Self::TargetIndex, d->SelectedTargetMarkupIndex);
+  visibilityItem->setCheckState(Qt::Checked);
 
   entryItem->setFlags(entryItem->flags() & ~Qt::ItemIsEditable);
   targetItem->setFlags(targetItem->flags() & ~Qt::ItemIsEditable);
+  visibilityItem->setFlags(visibilityItem->flags() | Qt::ItemIsUserCheckable);
 
   d->TableWidget->setItem(rowCount, Self::RulerName, rulerItem);
   d->TableWidget->setItem(rowCount, Self::EntryName, entryItem);
   d->TableWidget->setItem(rowCount, Self::TargetName, targetItem);
-  
+  d->TableWidget->setItem(rowCount, Self::RulerVisibility, visibilityItem);
+
   d->TableWidget->selectRow(rowCount);
 }
 
@@ -264,38 +268,38 @@ void qSlicerPathExplorerTrajectoryTableWidget
     {
     d->TableWidget->item(d->SelectedTrajectoryIndex, Self::EntryName)->setText(d->EntryNode->GetNthMarkupLabel(d->SelectedEntryMarkupIndex).c_str());
     d->TableWidget->item(d->SelectedTrajectoryIndex, Self::EntryName)->setData(Self::EntryIndex, d->SelectedEntryMarkupIndex);
-      
+
     d->TableWidget->item(d->SelectedTrajectoryIndex, Self::TargetName)->setText(d->TargetNode->GetNthMarkupLabel(d->SelectedTargetMarkupIndex).c_str());
-    d->TableWidget->item(d->SelectedTrajectoryIndex, Self::TargetName)->setData(Self::TargetIndex, d->SelectedTargetMarkupIndex); 
-      
+    d->TableWidget->item(d->SelectedTrajectoryIndex, Self::TargetName)->setData(Self::TargetIndex, d->SelectedTargetMarkupIndex);
+
     QString rulerID = QString(d->TableWidget->item(d->SelectedTrajectoryIndex, Self::RulerName)->data(Self::RulerID).toString());
-      
+
     if (!rulerID.isNull() && !rulerID.isEmpty())
       {
       vtkMRMLNode* node = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
       vtkMRMLAnnotationRulerNode* rulerNode =
-	vtkMRMLAnnotationRulerNode::SafeDownCast(node);
+        vtkMRMLAnnotationRulerNode::SafeDownCast(node);
       if (rulerNode)
-	{
-	// Necessary to block signals otherwise markups are updated 
-	// when only first one is set
-	double entryMarkupPosition[3];
-	d->EntryNode->GetNthFiducialPosition(d->SelectedEntryMarkupIndex, entryMarkupPosition);
-	double targetMarkupPosition[3];
-	d->TargetNode->GetNthFiducialPosition(d->SelectedTargetMarkupIndex, targetMarkupPosition);
-	  
-	this->qvtkDisconnect(rulerNode, vtkCommand::ModifiedEvent, 
-			     this, SLOT(onRulerModified(vtkObject*)));
-	  
-	rulerNode->SetPosition1(entryMarkupPosition);
-	rulerNode->SetPosition2(targetMarkupPosition);
-	  
-	this->qvtkConnect(rulerNode, vtkCommand::ModifiedEvent,
-			  this, SLOT(onRulerModified(vtkObject*)));
-	}
+        {
+        // Necessary to block signals otherwise markups are updated
+        // when only first one is set
+        double entryMarkupPosition[3];
+        d->EntryNode->GetNthFiducialPosition(d->SelectedEntryMarkupIndex, entryMarkupPosition);
+        double targetMarkupPosition[3];
+        d->TargetNode->GetNthFiducialPosition(d->SelectedTargetMarkupIndex, targetMarkupPosition);
+
+        this->qvtkDisconnect(rulerNode, vtkCommand::ModifiedEvent,
+                             this, SLOT(onRulerModified(vtkObject*)));
+
+        rulerNode->SetPosition1(entryMarkupPosition);
+        rulerNode->SetPosition2(targetMarkupPosition);
+
+        this->qvtkConnect(rulerNode, vtkCommand::ModifiedEvent,
+                          this, SLOT(onRulerModified(vtkObject*)));
+        }
       }
     }
-  
+
   d->UpdateButton->setEnabled(0);
 }
 
@@ -303,78 +307,78 @@ void qSlicerPathExplorerTrajectoryTableWidget
 void qSlicerPathExplorerTrajectoryTableWidget
 ::onClearButtonClicked()
 {
-   Q_D(qSlicerPathExplorerTrajectoryTableWidget);
+  Q_D(qSlicerPathExplorerTrajectoryTableWidget);
 
-   if (!d->TableWidget)
-     {
-     return;
-     }
+  if (!d->TableWidget)
+    {
+    return;
+    }
 
-   int rowCount = d->TableWidget->rowCount();
-   for (int i = 0; i < rowCount; ++i)
-     {
-     QString rulerID = QString(d->TableWidget->item(i, Self::RulerName)->data(Self::RulerID).toString());
-     if (!rulerID.isNull() && !rulerID.isEmpty())
-       {
-       vtkMRMLNode* rulerNode = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
-       this->mrmlScene()->RemoveNode(rulerNode);
-       }
-     }
-   d->TableWidget->setRowCount(0);
-   d->TableWidget->clearContents();
+  int rowCount = d->TableWidget->rowCount();
+  for (int i = 0; i < rowCount; ++i)
+    {
+    QString rulerID = QString(d->TableWidget->item(i, Self::RulerName)->data(Self::RulerID).toString());
+    if (!rulerID.isNull() && !rulerID.isEmpty())
+      {
+      vtkMRMLNode* rulerNode = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
+      this->mrmlScene()->RemoveNode(rulerNode);
+      }
+    }
+  d->TableWidget->setRowCount(0);
+  d->TableWidget->clearContents();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerPathExplorerTrajectoryTableWidget
 ::onSelectionChanged()
 {
-   Q_D(qSlicerPathExplorerTrajectoryTableWidget);
+  Q_D(qSlicerPathExplorerTrajectoryTableWidget);
 
-   if (!d->TableWidget ||
-       !d->EntryNode || !d->TargetNode)
-     {
-     return;
-     }
+  if (!d->TableWidget ||
+      !d->EntryNode || !d->TargetNode)
+    {
+    return;
+    }
 
-   d->SelectedTrajectoryIndex = d->TableWidget->currentRow();
-   int entryMarkupIndex = -1;
-   int targetMarkupIndex = -1;
+  d->SelectedTrajectoryIndex = d->TableWidget->currentRow();
+  int entryMarkupIndex = -1;
+  int targetMarkupIndex = -1;
 
-   if (d->SelectedTrajectoryIndex < 0)
-     {
-     return;
-     }
-   
-   entryMarkupIndex = d->TableWidget->item(d->SelectedTrajectoryIndex, Self::EntryName)->data(Self::EntryIndex).toInt();
-   targetMarkupIndex = d->TableWidget->item(d->SelectedTrajectoryIndex, Self::TargetName)->data(Self::TargetIndex).toInt();
+  if (d->SelectedTrajectoryIndex < 0)
+    {
+    return;
+    }
 
-   if (!d->EntryNode->MarkupExists(entryMarkupIndex) || 
-       !d->TargetNode->MarkupExists(targetMarkupIndex))
-     {
-     return;
-     }
+  entryMarkupIndex = d->TableWidget->item(d->SelectedTrajectoryIndex, Self::EntryName)->data(Self::EntryIndex).toInt();
+  targetMarkupIndex = d->TableWidget->item(d->SelectedTrajectoryIndex, Self::TargetName)->data(Self::TargetIndex).toInt();
 
-   d->UpdateButton->setEnabled(0);
-   
-   QString rulerID = QString(d->TableWidget->item(d->SelectedTrajectoryIndex, Self::RulerName)->data(Self::RulerID).toString());
-   QString rulerName = QString(d->TableWidget->item(d->SelectedTrajectoryIndex, Self::RulerName)->text());
-   if (!rulerID.isNull() && !rulerID.isEmpty())
-     {
-     vtkMRMLNode* node = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
-     vtkMRMLAnnotationRulerNode* rulerNode =
-       vtkMRMLAnnotationRulerNode::SafeDownCast(node);
-     if (rulerNode)
-       {
-       emit entryPointModified(d->EntryNode, entryMarkupIndex);
-       emit targetPointModified(d->TargetNode, targetMarkupIndex);
-       }
-     emit selectedRulerChanged(rulerNode);
-     }   
+  if (!d->EntryNode->MarkupExists(entryMarkupIndex) ||
+      !d->TargetNode->MarkupExists(targetMarkupIndex))
+    {
+    return;
+    }
+
+  d->UpdateButton->setEnabled(0);
+
+  QString rulerID = QString(d->TableWidget->item(d->SelectedTrajectoryIndex, Self::RulerName)->data(Self::RulerID).toString());
+  QString rulerName = QString(d->TableWidget->item(d->SelectedTrajectoryIndex, Self::RulerName)->text());
+  if (!rulerID.isNull() && !rulerID.isEmpty())
+    {
+    vtkMRMLNode* node = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
+    vtkMRMLAnnotationRulerNode* rulerNode =
+      vtkMRMLAnnotationRulerNode::SafeDownCast(node);
+    if (rulerNode)
+      {
+      emit entryPointModified(d->EntryNode, entryMarkupIndex);
+      emit targetPointModified(d->TargetNode, targetMarkupIndex);
+      }
+    emit selectedRulerChanged(rulerNode);
+    }
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerPathExplorerTrajectoryTableWidget
-::onCellChanged(int row, int /*column*/)
+::onCellChanged(int row, int column)
 {
   Q_D(qSlicerPathExplorerTrajectoryTableWidget);
 
@@ -387,8 +391,24 @@ void qSlicerPathExplorerTrajectoryTableWidget
   QString rulerName = QString(d->TableWidget->item(row, Self::RulerName)->text());
   if (!rulerID.isNull() && !rulerID.isEmpty())
     {
-    vtkMRMLNode* rulerNode = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
-    rulerNode->SetName(rulerName.toStdString().c_str());
+    vtkMRMLAnnotationRulerNode* rulerNode =
+      vtkMRMLAnnotationRulerNode::SafeDownCast(this->mrmlScene()->GetNodeByID(rulerID.toStdString()));
+
+    if (rulerNode)
+      {
+      if (column == Self::RulerName)
+        {
+        rulerNode->SetName(rulerName.toStdString().c_str());
+        }
+      else if (column == Self::RulerVisibility)
+        {
+        QTableWidgetItem* visItem = d->TableWidget->item(row,column);
+        if (visItem)
+          {
+          rulerNode->SetDisplayVisibility(visItem->checkState() == Qt::Checked);
+          }
+        }
+      }
     }
 }
 
@@ -402,7 +422,7 @@ void qSlicerPathExplorerTrajectoryTableWidget
     {
     return;
     }
-  
+
   d->EntryNode = entryList;
 }
 
@@ -416,7 +436,7 @@ void qSlicerPathExplorerTrajectoryTableWidget
     {
     return;
     }
-  
+
   d->TargetNode = targetList;
 }
 
@@ -462,7 +482,7 @@ void qSlicerPathExplorerTrajectoryTableWidget
 
   d->SelectedEntryMarkupIndex = entryMarkupIndex;
 
-  if (!d->TableWidget || !fNode || 
+  if (!d->TableWidget || !fNode ||
       !fNode->MarkupExists(entryMarkupIndex))
     {
     return;
@@ -511,20 +531,20 @@ void qSlicerPathExplorerTrajectoryTableWidget
 ::onEntryMarkupRemoved(vtkMRMLMarkupsFiducialNode*, int removedMarkupIndex)
 {
   Q_D(qSlicerPathExplorerTrajectoryTableWidget);
-  
+
   if (!d->TableWidget)
     {
     return;
     }
-  
+
   // Look for all ruler using this markup ID as entry point
   QAbstractItemModel* model = d->TableWidget->model();
   if (model)
     {
     QModelIndexList found = model->match(model->index(0,Self::EntryName),
-					 Self::EntryIndex, removedMarkupIndex, 
-					 -1, Qt::MatchExactly);
-    
+                                         Self::EntryIndex, removedMarkupIndex,
+                                         -1, Qt::MatchExactly);
+
     // Remove rulers from the end to avoid updating row numbers of items on top
     bool test = d->TableWidget->blockSignals(true);
     int foundCount = found.count();
@@ -533,12 +553,12 @@ void qSlicerPathExplorerTrajectoryTableWidget
       int currentRow = found[foundCount-1 - i].row();
       QString rulerID = QString(d->TableWidget->item(currentRow, Self::RulerName)->data(Self::RulerID).toString());
       if (!rulerID.isNull() && !rulerID.isEmpty())
-	{
-	vtkMRMLNode* rulerNode = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
-	this->mrmlScene()->RemoveNode(rulerNode);
-	d->TableWidget->removeRow(currentRow);
-	d->SelectedTrajectoryIndex = d->TableWidget->currentRow();
-	}
+        {
+        vtkMRMLNode* rulerNode = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
+        this->mrmlScene()->RemoveNode(rulerNode);
+        d->TableWidget->removeRow(currentRow);
+        d->SelectedTrajectoryIndex = d->TableWidget->currentRow();
+        }
       }
     d->TableWidget->blockSignals(test);
     }
@@ -549,20 +569,20 @@ void qSlicerPathExplorerTrajectoryTableWidget
 ::onTargetMarkupRemoved(vtkMRMLMarkupsFiducialNode*, int removedMarkupIndex)
 {
   Q_D(qSlicerPathExplorerTrajectoryTableWidget);
-  
+
   if (!d->TableWidget)
     {
     return;
     }
-  
+
   // Look for all ruler using this markup ID as entry point
   QAbstractItemModel* model = d->TableWidget->model();
   if (model)
     {
     QModelIndexList found = model->match(model->index(0,Self::TargetName),
-					 Self::TargetIndex, removedMarkupIndex, 
-					 -1, Qt::MatchExactly);
-    
+                                         Self::TargetIndex, removedMarkupIndex,
+                                         -1, Qt::MatchExactly);
+
     bool test = d->TableWidget->blockSignals(true);
     int foundCount = found.count();
     for (int i = 0; i < foundCount; ++i)
@@ -570,12 +590,12 @@ void qSlicerPathExplorerTrajectoryTableWidget
       int currentRow = found[foundCount-1 - i].row();
       QString rulerID = QString(d->TableWidget->item(currentRow, Self::RulerName)->data(Self::RulerID).toString());
       if (!rulerID.isNull() && !rulerID.isEmpty())
-	{
-	vtkMRMLNode* rulerNode = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
-	this->mrmlScene()->RemoveNode(rulerNode);
-	d->TableWidget->removeRow(currentRow);
-	d->SelectedTrajectoryIndex = d->TableWidget->currentRow();
-	}
+        {
+        vtkMRMLNode* rulerNode = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
+        this->mrmlScene()->RemoveNode(rulerNode);
+        d->TableWidget->removeRow(currentRow);
+        d->SelectedTrajectoryIndex = d->TableWidget->currentRow();
+        }
       }
     d->TableWidget->blockSignals(test);
     }
@@ -604,30 +624,30 @@ void qSlicerPathExplorerTrajectoryTableWidget
   if (model)
     {
     QModelIndexList found = model->match(model->index(0,Self::EntryName),
-					 Self::EntryIndex, entryMarkupIndex, 
-					 -1, Qt::MatchExactly);
+                                         Self::EntryIndex, entryMarkupIndex,
+                                         -1, Qt::MatchExactly);
 
     for (int i = 0; i < found.count(); ++i)
       {
       int currentRow = found[i].row();
       if (currentRow >= 0)
-	{
-	// Update Name
-	d->TableWidget->item(currentRow, Self::EntryName)->setText(markupName.c_str());
-	
-	// Update ruler position
-	QString rulerID = QString(d->TableWidget->item(currentRow, Self::RulerName)->data(Self::RulerID).toString());
-	if (!rulerID.isNull() || !rulerID.isEmpty())
-	  {
-	  vtkMRMLNode* node = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
-	  vtkMRMLAnnotationRulerNode* ruler = 
-	    vtkMRMLAnnotationRulerNode::SafeDownCast(node);
-	  if (ruler)
-	    {
-	    ruler->SetPosition1(markupPosition);
-	    }
-	  }
-	}
+        {
+        // Update Name
+        d->TableWidget->item(currentRow, Self::EntryName)->setText(markupName.c_str());
+
+        // Update ruler position
+        QString rulerID = QString(d->TableWidget->item(currentRow, Self::RulerName)->data(Self::RulerID).toString());
+        if (!rulerID.isNull() || !rulerID.isEmpty())
+          {
+          vtkMRMLNode* node = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
+          vtkMRMLAnnotationRulerNode* ruler =
+            vtkMRMLAnnotationRulerNode::SafeDownCast(node);
+          if (ruler)
+            {
+            ruler->SetPosition1(markupPosition);
+            }
+          }
+        }
       }
     }
 
@@ -656,30 +676,30 @@ void qSlicerPathExplorerTrajectoryTableWidget
   if (model)
     {
     QModelIndexList found = model->match(model->index(0,Self::TargetName),
-					 Self::TargetIndex, targetMarkupIndex, 
-					 -1, Qt::MatchExactly);
+                                         Self::TargetIndex, targetMarkupIndex,
+                                         -1, Qt::MatchExactly);
 
     for (int i = 0; i < found.count(); ++i)
       {
       int currentRow = found[i].row();
       if (currentRow >= 0)
-	{
-	// Update Name
-	d->TableWidget->item(currentRow, Self::TargetName)->setText(markupName.c_str());
-	
-	// Update ruler position
-	QString rulerID = QString(d->TableWidget->item(currentRow, Self::RulerName)->data(Self::RulerID).toString());
-	if (!rulerID.isNull() || !rulerID.isEmpty())
-	  {
-	  vtkMRMLNode* node = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
-	  vtkMRMLAnnotationRulerNode* ruler = 
-	    vtkMRMLAnnotationRulerNode::SafeDownCast(node);
-	  if (ruler)
-	    {
-	    ruler->SetPosition2(markupPosition);
-	    }
-	  }
-	}
+        {
+        // Update Name
+        d->TableWidget->item(currentRow, Self::TargetName)->setText(markupName.c_str());
+
+        // Update ruler position
+        QString rulerID = QString(d->TableWidget->item(currentRow, Self::RulerName)->data(Self::RulerID).toString());
+        if (!rulerID.isNull() || !rulerID.isEmpty())
+          {
+          vtkMRMLNode* node = this->mrmlScene()->GetNodeByID(rulerID.toStdString());
+          vtkMRMLAnnotationRulerNode* ruler =
+            vtkMRMLAnnotationRulerNode::SafeDownCast(node);
+          if (ruler)
+            {
+            ruler->SetPosition2(markupPosition);
+            }
+          }
+        }
       }
     }
 }
@@ -711,24 +731,24 @@ void qSlicerPathExplorerTrajectoryTableWidget
     if (model)
       {
       QModelIndexList found = model->match(model->index(0,Self::RulerName),
-					   Self::RulerID, rulerNode->GetID(), 
-					   1, Qt::MatchExactly);
+                                           Self::RulerID, rulerNode->GetID(),
+                                           1, Qt::MatchExactly);
 
       if (!found.isEmpty())
-	{
-	int row = found[0].row();
-	int entryMarkupIndex = d->TableWidget->item(row, Self::EntryName)->data(Self::EntryIndex).toInt();
-	if (entryMarkupIndex >= 0 && entryMarkupIndex < d->EntryNode->GetNumberOfMarkups())
-	  {
-	  d->EntryNode->SetNthFiducialPositionFromArray(entryMarkupIndex, p1);
-	  }
+        {
+        int row = found[0].row();
+        int entryMarkupIndex = d->TableWidget->item(row, Self::EntryName)->data(Self::EntryIndex).toInt();
+        if (entryMarkupIndex >= 0 && entryMarkupIndex < d->EntryNode->GetNumberOfMarkups())
+          {
+          d->EntryNode->SetNthFiducialPositionFromArray(entryMarkupIndex, p1);
+          }
 
-	int targetMarkupIndex = d->TableWidget->item(row, Self::TargetName)->data(Self::TargetIndex).toInt();
-	if (targetMarkupIndex >= 0 && targetMarkupIndex < d->TargetNode->GetNumberOfMarkups())
-	  {
-	  d->TargetNode->SetNthFiducialPositionFromArray(targetMarkupIndex, p2);
-	  }
-	}
+        int targetMarkupIndex = d->TableWidget->item(row, Self::TargetName)->data(Self::TargetIndex).toInt();
+        if (targetMarkupIndex >= 0 && targetMarkupIndex < d->TargetNode->GetNumberOfMarkups())
+          {
+          d->TargetNode->SetNthFiducialPositionFromArray(targetMarkupIndex, p2);
+          }
+        }
       }
     }
 }

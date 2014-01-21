@@ -99,7 +99,8 @@ protected:
   {
     RulerName = 0,
     EntryName = 1,
-    TargetName = 2
+    TargetName = 2,
+    RulerVisibility = 3
   };
 
   enum CustomRole
